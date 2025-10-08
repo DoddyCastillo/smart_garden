@@ -10,7 +10,7 @@ enum SHT31_State { SHT31_IDLE, SHT31_WAITING, SHT31_READ };
 SHT31_State shtState = SHT31_IDLE;
 uint16_t shtWaitCounter = 0;
 
-const int LED_PIN = 10; // LED externo en pin 10
+const int LED_PIN = 17; // LED externo en pin 10
 
 void LED_Task(void) {
     static bool state = false;
@@ -40,7 +40,7 @@ void SHT31_Task(void) {
         break;
 
     case SHT31_READ:
-        Wire.requestFrom(SHT31_ADDR, (uint8_t)6);
+        Wire.requestFrom((uint8_t)SHT31_ADDR, (uint8_t)6);
         if (Wire.available() == 6) {
             uint16_t tData = (Wire.read() << 8) | Wire.read();
             Wire.read(); // CRC temp

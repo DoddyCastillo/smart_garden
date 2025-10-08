@@ -1,6 +1,6 @@
 #include "scheduler.h"
 
-volatile sTask SCH_tasks_G[SCH_MAX_TASKS];
+sTask SCH_tasks_G[SCH_MAX_TASKS];
 
 void SCH_Init(void) {
     // Vaciar la tabla de tareas

@@ -6,7 +6,7 @@
 void setup() {
     Serial.begin(9600);
     Wire.begin();
-    pinMode(10, OUTPUT);
+    pinMode(17, OUTPUT);
 
     SCH_Init();
 
