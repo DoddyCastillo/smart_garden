@@ -17,3 +17,4 @@ extern sTask SCH_tasks_G[SCH_MAX_TASKS];
 void SCH_Init(void);
 uint8_t SCH_Add_Task(TaskFunction pFunction, uint16_t DELAY, uint16_t PERIOD);
 void SCH_Update(void);
+void SCH_Dispatch_Tasks(void);
