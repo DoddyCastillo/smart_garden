@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include <stddef.h>
 
 sTask SCH_tasks_G[SCH_MAX_TASKS];
 
@@ -49,18 +50,20 @@ void SCH_Dispatch_Tasks(void) {
 
 void SCH_Update(void) {
     for (uint8_t i = 0; i < SCH_MAX_TASKS; i++) {
-        if (SCH_tasks_G[i].pTask) {
-            if (SCH_tasks_G[i].Delay > 0) {
-                SCH_tasks_G[i].Delay--;
-                if (SCH_tasks_G[i].Delay == 0) {
-                    SCH_tasks_G[i].RunMe++;
-                    if (SCH_tasks_G[i].Period)
-                        SCH_tasks_G[i].Delay = SCH_tasks_G[i].Period;
-                }
-            } else if (SCH_tasks_G[i].Period) {
-                SCH_tasks_G[i].RunMe++;
-                SCH_tasks_G[i].Delay = SCH_tasks_G[i].Period;
+        sTask * task = &SCH_tasks_G[i];
+        if (task->pTask == NULL)
+            continue;
+        if (task->Delay > 0) {
+            task->Delay--;
+            if (task->Delay == 0) {
+                task->RunMe++;
+                if (task->Period > 0)
+                    task->Delay = task->Period;
             }
+        } else if (task->Period > 0) {
+
+            task->RunMe++;
+            task->Delay = task->Period;
         }
     }
 }
