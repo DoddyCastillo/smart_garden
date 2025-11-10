@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define TWI_FREQ 100000L
+
 typedef enum {
     I2C_STATE_IDLE,
     I2C_STATE_START,
@@ -29,7 +31,7 @@ typedef struct {
     void (*onComplete)(bool success);
 } I2C_Transaction;
 
-void I2C_Init(uint32_t freqHz);
+void I2C_Init(void);
 
 bool I2C_BeginTransmission(uint8_t addr, uint8_t * data, uint8_t len,
                            void (*callback)(bool success));
