@@ -94,4 +94,8 @@ dkms.conf
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,linux,platformio,c
 build
 vendor
-ceedling
+test-ceedling/
+.vscode/
+.clang-format
+.agent/
+fix_permissions.sh

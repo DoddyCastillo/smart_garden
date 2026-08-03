@@ -1,68 +1,71 @@
+#include <Arduino.h>
 #include "tasks.h"
+#include "SHT31.h"
+#include "MHZ19.h"
+#include "DS18B20.h"
 
-// Variables globales de estado
-float latestTemperature = 0.0;
-float latestHumidity = 0.0;
-uint8_t Error_code_G = 0;
-
-enum SHT31_State { SHT31_IDLE, SHT31_WAITING, SHT31_READ };
-
-SHT31_State shtState = SHT31_IDLE;
-uint16_t shtWaitCounter = 0;
-
-const int LED_PIN = 17; // LED externo en pin 10
+/* === LED TASK ============================================================================== */
 
 void LED_Task(void) {
     static bool state = false;
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
     state = !state;
-}
 
-// Máquina de estados NO bloqueante para SHT31
-void SHT31_Task(void) {
-    switch (shtState) {
-    case SHT31_IDLE:
-        // Enviar comando de medición
-        Wire.beginTransmission(SHT31_ADDR);
-        Wire.write(0x24);
-        Wire.write(0x00);
-        Wire.endTransmission();
-        shtWaitCounter = 15; // esperar 15ms típicamente
-        shtState = SHT31_WAITING;
-        break;
-
-    case SHT31_WAITING:
-        if (shtWaitCounter > 0) {
-            shtWaitCounter--;
-        } else {
-            shtState = SHT31_READ;
-        }
-        break;
-
-    case SHT31_READ:
-        Wire.requestFrom((uint8_t)SHT31_ADDR, (uint8_t)6);
-        if (Wire.available() == 6) {
-            uint16_t tData = (Wire.read() << 8) | Wire.read();
-            Wire.read(); // CRC temp
-            uint16_t hData = (Wire.read() << 8) | Wire.read();
-            Wire.read(); // CRC hum
-
-            latestTemperature = -45 + 175 * (tData / 65535.0);
-            latestHumidity = 100 * (hData / 65535.0);
-            Error_code_G = 0;
-        } else {
-            Error_code_G = 3; // error de lectura
-        }
-        shtState = SHT31_IDLE;
-        break;
+    // Controlar LEDs integrados de placa Pro Micro (RX y TX LEDs)
+    if (state) {
+        RXLED1; // Encender LED RX
+        TXLED1; // Encender LED TX
+    } else {
+        RXLED0; // Apagar LED RX
+        TXLED0; // Apagar LED TX
     }
 }
 
+void LED_Backup_Task(void) {
+    // Tarea de respaldo segura: mantiene los LEDs apagados
+    RXLED0;
+    TXLED0;
+}
+
+/* === SHT31 TASK ============================================================================ */
+
+void SHT31_Task(void) {
+    /* Delegar al módulo sht31 */
+    SHT31_Tick();
+}
+
+/* === MH-Z19C TASK ========================================================================== */
+
+void MHZ19_Task(void) {
+    /* Delegar al módulo mhz19 (procesar señal PWM) */
+    MHZ19_Tick();
+}
+
+/* === DS18B20 TASK ========================================================================== */
+
+void DS18B20_Task(void) {
+    /* Delegar al módulo ds18b20 */
+    DS18B20_Tick();
+}
+
+/* === SERIAL TASK =========================================================================== */
+
 void Serial_Task(void) {
-    Serial.print("T=");
-    Serial.print(latestTemperature, 1);
-    Serial.print(" °C, H=");
-    Serial.print(latestHumidity, 1);
-    Serial.print(" % | Err=");
-    Serial.println(Error_code_G);
+    Serial.print(F("Temp(SHT31): "));
+    Serial.print(SHT31_Temperature, 2);
+    Serial.print(F(" °C | Hum: "));
+    Serial.print(SHT31_Humidity, 2);
+    Serial.print(F(" % | CO2: "));
+    if (MHZ19_Valid) {
+        Serial.print(MHZ19_CO2, 1);
+        Serial.print(F(" ppm"));
+    } else {
+        Serial.print(F("Calibrando..."));
+    }
+    Serial.print(F(" | Temp(DS18B20): "));
+    if (DS18B20_Valid) {
+        Serial.print(DS18B20_Temperature, 2);
+        Serial.println(F(" °C"));
+    } else {
+        Serial.println(F("Leyendo..."));
+    }
 }
