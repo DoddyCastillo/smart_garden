@@ -22,7 +22,7 @@
  * @def SCH_MAX_TASKS
  * @brief Número máximo de tareas que puede manejar el scheduler simultáneamente.
  */
-#define SCH_MAX_TASKS 5
+#define SCH_MAX_TASKS 8
 
 /**
  * @def SCH_NO_TASK_AVAILABLE

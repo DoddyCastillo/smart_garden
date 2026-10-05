@@ -50,6 +50,11 @@ void DS18B20_Init(void);
  */
 void DS18B20_Tick(void);
 
+/**
+ * @brief Fuerza al sensor DS18B20 a iniciar la conversión de temperatura inmediatamente al despertar.
+ */
+void DS18B20_Trigger(void);
+
 #ifdef __cplusplus
 }
 #endif

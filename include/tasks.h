@@ -97,6 +97,11 @@ void MHZ19_Task(void);
  */
 void DS18B20_Task(void);
 
+/**
+ * @brief Tarea cooperativa que delega en @ref RYLR998_Tick().
+ */
+void LoRa_Task(void);
+
 /* === End of documentation ==================================================================== */
 
 #ifdef __cplusplus

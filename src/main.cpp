@@ -5,9 +5,11 @@
 #include "SHT31.h"
 #include "MHZ19.h"
 #include "DS18B20.h"
+#include "RYLR998.h"
 
 void setup() {
     Serial.begin(9600);
+    while (!Serial && millis() < 2500); // Esperar conexión del monitor serie USB (máx 2.5s)
 
     /* Inicializar I2C asíncrono */
     I2C_Init();
@@ -20,6 +22,9 @@ void setup() {
 
     /* Inicializar sensor de temperatura DS18B20 */
     DS18B20_Init();
+
+    /* Inicializar módem LoRa RYLR998 */
+    RYLR998_Init();
 
     /* Inicializar scheduler */
     SCH_Init();
@@ -35,6 +40,9 @@ void setup() {
 
     /* DS18B20_Tick cada DS18B20_TASK_TICK_MS (10 ms) */
     SCH_Add_Task(DS18B20_Task, 0, DS18B20_TASK_TICK_MS);
+
+    /* RYLR998_Tick cada RYLR998_TICK_MS (20 ms) */
+    SCH_Add_Task(LoRa_Task, 0, RYLR998_TICK_MS);
 
     /* Serial debug cada 1000 ms */
     SCH_Add_Task(Serial_Task, 1000, 1000);
